@@ -62,6 +62,10 @@ The initial surface is bounded to company lookup, domain check/status, tender se
 Risk analysis and private document scans. It has no delete, revoke, rotate, billing or workspace
 administration tool.
 
+The MCP status/read surface also covers Change Risk assessment retrieval, private document status
+and findings, workspace overview and configured integration status. It remains intentionally unable
+to change production monitors, plans, keys or customer data.
+
 ## Errors and limits
 
 `401`/`403` means the key is invalid, inactive or lacks a scope. `429` means a request or plan limit
@@ -71,5 +75,14 @@ truth. Clients use a bounded timeout and reject oversized or non-JSON responses.
 ## Publication status
 
 PyPI and npm packages are not published yet. The only blocker is maintainer-owned PyPI/npm trusted
-publisher setup or explicit package-registry credentials. The release workflow builds artifacts but
-does not publish automatically. The GitHub Action is version-tagged directly from this repository.
+publisher setup or explicit package-registry credentials. The release workflow validates all three
+package versions against the tag, builds artifacts, and can create a GitHub **draft** release only
+through explicit manual dispatch. It does not publish automatically. Once maintainers authorize and
+publish `v0.1.0`, registry installation is:
+
+```bash
+python -m pip install antops==0.1.0
+npm install @antops/sdk@0.1.0 @antops/mcp@0.1.0
+```
+
+The GitHub Action is version-tagged directly from this repository.

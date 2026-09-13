@@ -2,6 +2,18 @@ name: Release verification
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing version tag to validate and optionally draft as a GitHub Release"
+        required: true
+        default: "v0.1.0"
+        type: string
+      create_draft_release:
+        description: "Create a GitHub draft release only; never publishes a registry package"
+        required: true
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -9,6 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -20,6 +34,12 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Verify release version agreement
+        run: |
+          TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          test "${TAG#v}" = "$(python -c \"import tomllib; print(tomllib.load(open('packages/python/pyproject.toml', 'rb'))['project']['version'])\")"
+          test "${TAG#v}" = "$(node -p \"require('./packages/typescript/package.json').version\")"
+          test "${TAG#v}" = "$(node -p \"require('./packages/mcp/package.json').version\")"
       - uses: actions/upload-artifact@v4
         with:
           name: antops-release-artifacts
@@ -27,3 +47,15 @@ jobs:
             packages/python/dist
             packages/typescript/dist
             packages/mcp/dist
+  create-draft-release:
+    needs: build-artifacts
+    if: github.event_name == 'workflow_dispatch' && inputs.create_draft_release
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a draft GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: gh release create "$TAG" --draft --generate-notes --title "$TAG"

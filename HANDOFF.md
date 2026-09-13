@@ -14,6 +14,11 @@ read/status tools and now emits a fixed allow-listed tool identifier for aggrega
 Local TypeScript/MCP build and tests pass. Publishing stays disabled: no PyPI/npm registry
 credential or trusted publisher is configured. Do not publish artifacts automatically.
 
+The corresponding private platform commit `b24073e` is deployed on B450 at migration
+`20260913_0012`; public health, readiness, Swagger, ReDoc and OpenAPI checks passed. GitHub App
+credentials and webhook secret are not configured in production, so no real provider claim may be
+made and no package release should imply that the integration is generally available.
+
 **CURRENT BLOCKER:** Real provider proof requires operator-owned GitHub App, Slack and Teams
 configuration in B450. No provider credential, webhook URL, private key or customer data is stored
 in this repository. Do not publicly advertise these integrations before controlled production
