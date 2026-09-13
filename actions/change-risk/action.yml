@@ -1,0 +1,32 @@
+name: AntOps Change Risk
+description: Submit bounded static changes to AntOps and fail only when its policy blocks the change.
+inputs:
+  api-key:
+    description: AntOps workspace key stored in GitHub Secrets.
+    required: true
+  base-url:
+    description: Compatible AntOps API base URL.
+    required: false
+    default: https://api.antops.dev
+  files:
+    description: Newline-separated repository-relative static text files to analyze.
+    required: true
+  max-files:
+    description: Maximum submitted files, capped at 20.
+    required: false
+    default: "20"
+  max-file-bytes:
+    description: Maximum bytes per submitted file, capped at 100000.
+    required: false
+    default: "100000"
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        ANTOPS_API_KEY: ${{ inputs.api-key }}
+        ANTOPS_BASE_URL: ${{ inputs.base-url }}
+        ANTOPS_FILES: ${{ inputs.files }}
+        ANTOPS_MAX_FILES: ${{ inputs.max-files }}
+        ANTOPS_MAX_FILE_BYTES: ${{ inputs.max-file-bytes }}
+      run: node "$GITHUB_ACTION_PATH/scripts/change-risk.mjs"

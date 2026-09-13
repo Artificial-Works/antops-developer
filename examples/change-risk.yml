@@ -1,0 +1,16 @@
+name: AntOps Change Risk
+on: [pull_request]
+permissions:
+  contents: read
+jobs:
+  assess:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Artificial-Works/antops-developer/actions/change-risk@v0.1.0
+        with:
+          api-key: ${{ secrets.ANTOPS_API_KEY }}
+          files: |
+            Dockerfile
+            compose.yaml
+            main.tf

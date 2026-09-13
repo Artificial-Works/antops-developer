@@ -1,0 +1,18 @@
+{
+  "name": "antops-developer",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "packages/typescript",
+    "packages/mcp"
+  ],
+  "scripts": {
+    "test:ts": "npm --workspace @antops/sdk run test",
+    "test:mcp": "npm --workspace @antops/mcp run test",
+    "test:action": "node --test actions/change-risk/test/**/*.test.mjs",
+    "build": "npm --workspace @antops/sdk run build && npm --workspace @antops/mcp run build"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.1"
+  }
+}

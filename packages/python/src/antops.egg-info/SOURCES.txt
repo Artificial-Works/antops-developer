@@ -1,0 +1,14 @@
+README.md
+pyproject.toml
+src/antops/__init__.py
+src/antops/cli.py
+src/antops/client.py
+src/antops/errors.py
+src/antops.egg-info/PKG-INFO
+src/antops.egg-info/SOURCES.txt
+src/antops.egg-info/dependency_links.txt
+src/antops.egg-info/entry_points.txt
+src/antops.egg-info/requires.txt
+src/antops.egg-info/top_level.txt
+tests/test_cli.py
+tests/test_client.py
