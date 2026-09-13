@@ -30,10 +30,12 @@ document content or key.
 
 ### Production proof
 
-An isolated temporary Business workspace was created and deleted after verifying real production
-calls from the CLI, Python SDK, TypeScript SDK, Change Risk Action and MCP safe tender search. Each
-produced its expected privacy-safe telemetry identifier: `cli/0.1.0`, `python/0.1.0`,
-`typescript/0.1.0`, `github-action/0.1.0` and `mcp/0.1.0`.
+Isolated temporary Business workspaces were created and deleted after verifying real production
+calls from the CLI, Python SDK, TypeScript SDK, Change Risk Action and MCP server. The MCP stdio
+transport listed the tool surface and completed safe Company Watch and Tender Intelligence reads.
+The Action submitted a controlled static `compose.yaml` and returned `blocked` with its documented
+exit status `1`. Each client produced its expected privacy-safe telemetry identifier:
+`cli/0.1.0`, `python/0.1.0`, `typescript/0.1.0`, `github-action/0.1.0` and `mcp/0.1.0`.
 
 ### Publication blocker
 
