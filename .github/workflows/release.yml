@@ -37,9 +37,12 @@ jobs:
       - name: Verify release version agreement
         run: |
           TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
-          test "${TAG#v}" = "$(python -c \"import tomllib; print(tomllib.load(open('packages/python/pyproject.toml', 'rb'))['project']['version'])\")"
-          test "${TAG#v}" = "$(node -p \"require('./packages/typescript/package.json').version\")"
-          test "${TAG#v}" = "$(node -p \"require('./packages/mcp/package.json').version\")"
+          PYTHON_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("packages/python/pyproject.toml", "rb"))["project"]["version"])')"
+          TYPESCRIPT_VERSION="$(node -p 'require("./packages/typescript/package.json").version')"
+          MCP_VERSION="$(node -p 'require("./packages/mcp/package.json").version')"
+          test "${TAG#v}" = "$PYTHON_VERSION"
+          test "${TAG#v}" = "$TYPESCRIPT_VERSION"
+          test "${TAG#v}" = "$MCP_VERSION"
       - uses: actions/upload-artifact@v4
         with:
           name: antops-release-artifacts
