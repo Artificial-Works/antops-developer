@@ -1,18 +1,15 @@
 import { AntOpsClient } from "@antops/sdk";
 
 const MAX_RESULT_CHARS = 20_000;
-const MAX_DOCUMENT_BYTES = 1_000_000;
 
 export const tools = [
   { name: "antops_company_lookup", description: "Look up a normalized official company profile.", inputSchema: { type: "object", properties: { jurisdiction: { type: "string" }, registration_number: { type: "string" }, provider: { type: "string" } }, required: ["jurisdiction", "registration_number"], additionalProperties: false } },
-  { name: "antops_company_watch", description: "Create a bounded recurring watch for an approved company record.", inputSchema: { type: "object", properties: { jurisdiction: { type: "string" }, registration_number: { type: "string" }, monitor_interval_seconds: { type: "integer", minimum: 300, maximum: 2592000 } }, required: ["jurisdiction", "registration_number"], additionalProperties: false } },
   { name: "antops_domain_check", description: "Run a bounded Email and Domain Health check.", inputSchema: { type: "object", properties: { domain: { type: "string" } }, required: ["domain"], additionalProperties: false } },
   { name: "antops_domain_status", description: "Read the current status of an existing monitored domain asset.", inputSchema: { type: "object", properties: { asset_id: { type: "string" } }, required: ["asset_id"], additionalProperties: false } },
   { name: "antops_tender_search", description: "Search current official procurement opportunities with bounded results.", inputSchema: { type: "object", properties: { keywords: { type: "array", items: { type: "string" }, maxItems: 10 }, jurisdiction: { type: "string" }, page_size: { type: "integer", minimum: 1, maximum: 25 } }, additionalProperties: false } },
   { name: "antops_tender_match", description: "Read explainable matches for an existing saved tender search.", inputSchema: { type: "object", properties: { saved_search_id: { type: "string" } }, required: ["saved_search_id"], additionalProperties: false } },
   { name: "antops_get_events", description: "Read bounded existing company, domain, or tender event history.", inputSchema: { type: "object", properties: { product: { type: "string", enum: ["company", "domain", "tender"] }, jurisdiction: { type: "string" }, registration_number: { type: "string" }, asset_id: { type: "string" }, limit: { type: "integer", minimum: 1, maximum: 25 } }, required: ["product"], additionalProperties: false } },
   { name: "antops_analyze_change", description: "Submit bounded static change text for deterministic AntOps Change Risk analysis.", inputSchema: { type: "object", properties: { files: { type: "array", maxItems: 20, items: { type: "object", properties: { path: { type: "string" }, content: { type: "string", maxLength: 100000 } }, required: ["path", "content"], additionalProperties: false } }, revision: { type: "string" } }, required: ["files"], additionalProperties: false } },
-  { name: "antops_document_scan", description: "Upload bounded UTF-8 document text to the existing private document intelligence API.", inputSchema: { type: "object", properties: { name: { type: "string" }, content: { type: "string", maxLength: 1000000 } }, required: ["name", "content"], additionalProperties: false } },
   { name: "antops_change_risk_status", description: "Read a completed Change Risk assessment and its deterministic findings.", inputSchema: { type: "object", properties: { assessment_id: { type: "string" } }, required: ["assessment_id"], additionalProperties: false } },
   { name: "antops_document_status", description: "Read the current private-document processing status.", inputSchema: { type: "object", properties: { document_id: { type: "string" } }, required: ["document_id"], additionalProperties: false } },
   { name: "antops_document_findings", description: "Read bounded findings from an already uploaded private document.", inputSchema: { type: "object", properties: { document_id: { type: "string" } }, required: ["document_id"], additionalProperties: false } },
@@ -24,12 +21,6 @@ export async function callTool(client: AntOpsClient, name: string, args: Record<
   switch (name) {
     case "antops_company_lookup":
       return client.company.lookup(String(args.jurisdiction), String(args.registration_number), args.provider ? String(args.provider) : undefined);
-    case "antops_company_watch":
-      return client.company.watch(
-        String(args.jurisdiction),
-        String(args.registration_number),
-        Math.max(300, Math.min(Number(args.monitor_interval_seconds ?? 86400), 2592000))
-      );
     case "antops_domain_check":
       return client.domains.check(String(args.domain));
     case "antops_domain_status":
@@ -55,11 +46,6 @@ export async function callTool(client: AntOpsClient, name: string, args: Record<
     case "antops_analyze_change": {
       const files = Array.isArray(args.files) ? args.files.slice(0, 20).map((file) => ({ path: String((file as Record<string, unknown>).path), content: String((file as Record<string, unknown>).content).slice(0, 100000) })) : [];
       return client.changeRisk.analyze(files, args.revision ? String(args.revision) : undefined);
-    }
-    case "antops_document_scan": {
-      const content = String(args.content);
-      if (new TextEncoder().encode(content).byteLength > MAX_DOCUMENT_BYTES) throw new Error("Document text exceeds the MCP safety limit.");
-      return client.documents.upload(new Blob([content], { type: "text/plain" }), String(args.name));
     }
     case "antops_change_risk_status":
       return client.get(`/v1/change-risk/analyses/${String(args.assessment_id)}`);

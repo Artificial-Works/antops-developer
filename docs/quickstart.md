@@ -59,8 +59,9 @@ then configure the MCP command as `node /absolute/path/to/packages/mcp/dist/inde
 ```
 
 The initial surface is bounded to company lookup, domain check/status, tender search/matches, Change
-Risk analysis and private document scans. It has no delete, revoke, rotate, billing or workspace
-administration tool.
+Risk analysis and private document status/findings. Its only controlled actions are safe domain
+checks and deterministic Change Risk analysis; it has no delete, upload, monitor creation, revoke,
+rotate, billing or workspace-administration tool.
 
 The MCP status/read surface also covers Change Risk assessment retrieval, private document status
 and findings, workspace overview and configured integration status. It remains intentionally unable

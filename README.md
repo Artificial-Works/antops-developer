@@ -31,8 +31,9 @@ They are never CLI flags. All clients use timeouts, bound response sizes and omi
 errors. The Action reads a bounded list of static text files and never executes repository content.
 MCP tools expose no destructive operation.
 
-The MCP server also exposes bounded status/history reads for Change Risk, private documents,
-workspace overview and integration configuration. Each MCP request includes only a fixed
+The MCP server exposes bounded status/history reads for Change Risk, private documents,
+workspace overview and integration configuration. Its only controlled actions are deterministic
+Change Risk analysis and a safe domain check. Each MCP request includes only a fixed
 allow-listed tool identifier for aggregate platform telemetry; it never forwards prompts, API keys
 or tool arguments as telemetry.
 
