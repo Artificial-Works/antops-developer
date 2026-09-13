@@ -20,3 +20,21 @@ test("authentication failures do not expose the key", async () => {
   const client = new AntOpsClient({ apiKey: "secret-key", fetch: async () => new Response(JSON.stringify({ detail: "Missing API key" }), { status: 401 }) });
   await assert.rejects(() => client.get("/v1/workspace"), AuthenticationError);
 });
+
+test("tender iterator follows the documented page contract", async () => {
+  const requested: string[] = [];
+  const client = new AntOpsClient({
+    apiKey: "test",
+    fetch: async (input) => {
+      requested.push(String(input));
+      const page = Number(new URL(String(input)).searchParams.get("page"));
+      return new Response(JSON.stringify(page === 1
+        ? { items: [{ id: "one" }], page: 1, page_size: 1, total: 2 }
+        : { items: [{ id: "two" }], page: 2, page_size: 1, total: 2 }));
+    }
+  });
+  const items = [];
+  for await (const item of client.tenders.iterSearch({ pageSize: 1 })) items.push(item);
+  assert.deepEqual(items, [{ id: "one" }, { id: "two" }]);
+  assert.equal(requested.length, 2);
+});

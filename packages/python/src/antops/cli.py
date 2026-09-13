@@ -14,6 +14,8 @@ from antops.errors import AntOpsError
 CONFIG_PATH = Path.home() / ".config" / "antops" / "config.json"
 EXIT_BLOCKED = 4
 EXIT_ERROR = 2
+MAX_CHANGE_RISK_FILES = 20
+MAX_CHANGE_RISK_FILE_BYTES = 100_000
 
 
 def _config_key() -> str | None:
@@ -125,7 +127,13 @@ def main(argv: list[str] | None = None) -> int:
             elif args.command == "tender":
                 result = client.tenders.search(keywords=args.keyword, jurisdiction=args.jurisdiction, page=args.page, page_size=args.page_size)
             elif args.command == "change-risk":
-                files = [{"path": str(path), "content": path.read_text(encoding="utf-8")} for path in args.files]
+                if len(args.files) > MAX_CHANGE_RISK_FILES:
+                    raise OSError(f"At most {MAX_CHANGE_RISK_FILES} files may be submitted.")
+                files = []
+                for path in args.files:
+                    if path.stat().st_size > MAX_CHANGE_RISK_FILE_BYTES:
+                        raise OSError(f"File exceeds {MAX_CHANGE_RISK_FILE_BYTES} bytes: {path}")
+                    files.append({"path": str(path), "content": path.read_text(encoding="utf-8")})
                 result = client.change_risk.analyze(files, revision=args.revision)
                 _print(result, args.json)
                 return EXIT_BLOCKED if result.get("decision") == "blocked" else 0

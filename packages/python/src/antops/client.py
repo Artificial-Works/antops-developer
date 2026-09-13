@@ -11,6 +11,7 @@ from antops.errors import AntOpsError, AuthenticationError, RateLimitError
 
 DEFAULT_BASE_URL = "https://api.antops.dev"
 MAX_RESPONSE_BYTES = 2_000_000
+MAX_DOCUMENT_BYTES = 10_485_760
 
 
 class _CompanyClient:
@@ -81,6 +82,8 @@ class _DocumentClient:
 
     def upload(self, path: str | Path) -> dict[str, Any]:
         source = Path(path)
+        if source.stat().st_size > MAX_DOCUMENT_BYTES:
+            raise AntOpsError("Document exceeds the client upload safety limit.")
         with source.open("rb") as handle:
             return self._client.post_multipart("/v1/documents", {"document": (source.name, handle)})
 

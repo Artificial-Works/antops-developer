@@ -21,6 +21,7 @@ export type AntOpsClientOptions = {
 
 export type ChangeRiskFile = { path: string; content: string };
 export type Page<T> = { items: T[]; page: number; page_size: number; total: number };
+export type TenderSearchOptions = { keywords?: string[]; page?: number; pageSize?: number; jurisdiction?: string };
 
 export class AntOpsClient {
   private readonly apiKey: string;
@@ -44,12 +45,13 @@ export class AntOpsClient {
   };
 
   readonly tenders = {
-    search: (options: { keywords?: string[]; page?: number; pageSize?: number; jurisdiction?: string } = {}) => {
+    search: (options: TenderSearchOptions = {}) => {
       const params = new URLSearchParams({ page: String(options.page ?? 1), page_size: String(options.pageSize ?? 25) });
       options.keywords?.forEach((value) => params.append("keywords", value));
       if (options.jurisdiction) params.set("jurisdiction", options.jurisdiction);
       return this.get(`/v1/tenders?${params.toString()}`) as Promise<Page<Record<string, unknown>>>;
     },
+    iterSearch: (options: Omit<TenderSearchOptions, "page"> = {}) => this.iterTenderSearch(options),
     matches: (savedSearchId: string) => this.get(`/v1/tender-saved-searches/${savedSearchId}/matches`)
   };
 
@@ -82,6 +84,16 @@ export class AntOpsClient {
 
   async post(path: string, payload: unknown): Promise<any> {
     return this.request("POST", path, { body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } });
+  }
+
+  async *iterTenderSearch(options: Omit<TenderSearchOptions, "page"> = {}) {
+    let page = 1;
+    while (true) {
+      const result = await this.tenders.search({ ...options, page });
+      yield* result.items;
+      if (result.items.length === 0 || page * result.page_size >= result.total) return;
+      page += 1;
+    }
   }
 
   private async request(method: string, path: string, init: RequestInit = {}): Promise<any> {

@@ -13,7 +13,7 @@ export ANTOPS_BASE_URL='https://api.antops.dev'
 ## 2. CLI
 
 ```bash
-python -m pip install antops
+python -m pip install 'git+https://github.com/Artificial-Works/antops-developer.git#subdirectory=packages/python'
 antops auth status
 antops company lookup GB 00000006 --json
 antops tender search --keyword cloud --json
@@ -42,7 +42,22 @@ Copy [`examples/change-risk.yml`](../examples/change-risk.yml), add `ANTOPS_API_
 Actions secret, and submit only static text files. The Action has `contents: read` permission and
 does not execute submitted content.
 
-An MCP client can run `npx -y @antops/mcp` with `ANTOPS_API_KEY` supplied from its secret manager.
+Until npm publishing is configured, clone `antops-developer`, run `npm install && npm run build`,
+then configure the MCP command as `node /absolute/path/to/packages/mcp/dist/index.js` with
+`ANTOPS_API_KEY` supplied from its secret manager.
+
+```json
+{
+  "mcpServers": {
+    "antops": {
+      "command": "node",
+      "args": ["/absolute/path/to/antops-developer/packages/mcp/dist/index.js"],
+      "env": { "ANTOPS_API_KEY": "load-from-your-secret-manager" }
+    }
+  }
+}
+```
+
 The initial surface is bounded to company lookup, domain check/status, tender search/matches, Change
 Risk analysis and private document scans. It has no delete, revoke, rotate, billing or workspace
 administration tool.
@@ -52,3 +67,9 @@ administration tool.
 `401`/`403` means the key is invalid, inactive or lacks a scope. `429` means a request or plan limit
 was reached. Use `GET /v1/plans`, `GET /v1/usage` and `GET /v1/workspace/overview` as the source of
 truth. Clients use a bounded timeout and reject oversized or non-JSON responses.
+
+## Publication status
+
+PyPI and npm packages are not published yet. The only blocker is maintainer-owned PyPI/npm trusted
+publisher setup or explicit package-registry credentials. The release workflow builds artifacts but
+does not publish automatically. The GitHub Action is version-tagged directly from this repository.
