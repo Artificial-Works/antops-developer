@@ -2,6 +2,23 @@
 
 Last updated: 2026-09-13
 
+## Wave 7 In Progress: Integrations and Distribution
+
+The local Wave 7 implementation adds bounded workspace integration primitives to the private
+platform: encrypted Slack/Teams destinations, routing by product/severity/customer/search/repository,
+durable alert-linked delivery attempts, and safe test messages. It also adds a signed GitHub App
+PR receiver with bounded diff retrieval, explicit installation/repository mapping, idempotent
+webhook handling and Change Risk Check Run updates. The MCP package has expanded only with bounded
+read/status tools and now emits a fixed allow-listed tool identifier for aggregate telemetry.
+
+Local TypeScript/MCP build and tests pass. Publishing stays disabled: no PyPI/npm registry
+credential or trusted publisher is configured. Do not publish artifacts automatically.
+
+**CURRENT BLOCKER:** Real provider proof requires operator-owned GitHub App, Slack and Teams
+configuration in B450. No provider credential, webhook URL, private key or customer data is stored
+in this repository. Do not publicly advertise these integrations before controlled production
+verification succeeds.
+
 ## Wave 6 Delivery
 
 This public repository is the Wave 6 distribution boundary. It contains a Python SDK/CLI,

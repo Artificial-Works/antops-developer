@@ -20,3 +20,16 @@ test("MCP company watch uses the existing SDK rather than local provider logic",
   });
   assert.equal((await callTool(client, "antops_company_watch", { jurisdiction: "GB", registration_number: "00000006" }) as { id: string }).id, "company-1");
 });
+
+test("MCP status tools remain bounded read-only calls", async () => {
+  const client = new AntOpsClient({
+    apiKey: "test",
+    fetch: async (input, init) => {
+      assert.equal(new URL(String(input)).pathname, "/v1/change-risk/analyses/assessment-1");
+      assert.equal(init?.method, "GET");
+      return new Response(JSON.stringify({ id: "assessment-1", decision: "allowed" }));
+    }
+  });
+  const result = await callTool(client, "antops_change_risk_status", { assessment_id: "assessment-1" }) as { decision: string };
+  assert.equal(result.decision, "allowed");
+});

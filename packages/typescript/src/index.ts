@@ -17,6 +17,7 @@ export type AntOpsClientOptions = {
   timeoutMs?: number;
   clientId?: string;
   fetch?: typeof globalThis.fetch;
+  requestHeaders?: Record<string, string>;
 };
 
 export type ChangeRiskFile = { path: string; content: string };
@@ -29,6 +30,7 @@ export class AntOpsClient {
   private readonly timeoutMs: number;
   private readonly clientId: string;
   private readonly requestFetch: typeof globalThis.fetch;
+  private readonly requestHeaders: Record<string, string>;
 
   readonly company = {
     lookup: (jurisdiction: string, registrationNumber: string, provider?: string) =>
@@ -74,6 +76,18 @@ export class AntOpsClient {
     this.timeoutMs = options.timeoutMs ?? 15_000;
     this.clientId = options.clientId ?? "typescript/0.1.0";
     this.requestFetch = options.fetch ?? globalThis.fetch;
+    this.requestHeaders = options.requestHeaders ?? {};
+  }
+
+  withRequestHeaders(headers: Record<string, string>): AntOpsClient {
+    return new AntOpsClient({
+      apiKey: this.apiKey,
+      baseUrl: this.baseUrl,
+      timeoutMs: this.timeoutMs,
+      clientId: this.clientId,
+      fetch: this.requestFetch,
+      requestHeaders: { ...this.requestHeaders, ...headers }
+    });
   }
 
   async get(path: string, params: Record<string, string> = {}): Promise<any> {
@@ -104,7 +118,13 @@ export class AntOpsClient {
         ...init,
         method,
         signal: controller.signal,
-        headers: { "X-API-Key": this.apiKey, "X-AntOps-Client": this.clientId, "User-Agent": `antops-${this.clientId}`, ...init.headers }
+        headers: {
+          "X-API-Key": this.apiKey,
+          "X-AntOps-Client": this.clientId,
+          "User-Agent": `antops-${this.clientId}`,
+          ...this.requestHeaders,
+          ...init.headers
+        }
       });
       const contentLength = Number(response.headers.get("content-length") ?? "0");
       if (contentLength > MAX_RESPONSE_BYTES) throw new AntOpsError("AntOps response exceeded the client safety limit.", response.status);

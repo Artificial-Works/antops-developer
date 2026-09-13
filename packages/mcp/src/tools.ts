@@ -12,7 +12,12 @@ export const tools = [
   { name: "antops_tender_match", description: "Read explainable matches for an existing saved tender search.", inputSchema: { type: "object", properties: { saved_search_id: { type: "string" } }, required: ["saved_search_id"], additionalProperties: false } },
   { name: "antops_get_events", description: "Read bounded existing company, domain, or tender event history.", inputSchema: { type: "object", properties: { product: { type: "string", enum: ["company", "domain", "tender"] }, jurisdiction: { type: "string" }, registration_number: { type: "string" }, asset_id: { type: "string" }, limit: { type: "integer", minimum: 1, maximum: 25 } }, required: ["product"], additionalProperties: false } },
   { name: "antops_analyze_change", description: "Submit bounded static change text for deterministic AntOps Change Risk analysis.", inputSchema: { type: "object", properties: { files: { type: "array", maxItems: 20, items: { type: "object", properties: { path: { type: "string" }, content: { type: "string", maxLength: 100000 } }, required: ["path", "content"], additionalProperties: false } }, revision: { type: "string" } }, required: ["files"], additionalProperties: false } },
-  { name: "antops_document_scan", description: "Upload bounded UTF-8 document text to the existing private document intelligence API.", inputSchema: { type: "object", properties: { name: { type: "string" }, content: { type: "string", maxLength: 1000000 } }, required: ["name", "content"], additionalProperties: false } }
+  { name: "antops_document_scan", description: "Upload bounded UTF-8 document text to the existing private document intelligence API.", inputSchema: { type: "object", properties: { name: { type: "string" }, content: { type: "string", maxLength: 1000000 } }, required: ["name", "content"], additionalProperties: false } },
+  { name: "antops_change_risk_status", description: "Read a completed Change Risk assessment and its deterministic findings.", inputSchema: { type: "object", properties: { assessment_id: { type: "string" } }, required: ["assessment_id"], additionalProperties: false } },
+  { name: "antops_document_status", description: "Read the current private-document processing status.", inputSchema: { type: "object", properties: { document_id: { type: "string" } }, required: ["document_id"], additionalProperties: false } },
+  { name: "antops_document_findings", description: "Read bounded findings from an already uploaded private document.", inputSchema: { type: "object", properties: { document_id: { type: "string" } }, required: ["document_id"], additionalProperties: false } },
+  { name: "antops_workspace_overview", description: "Read workspace-level asset, event, key and usage summary without modifying configuration.", inputSchema: { type: "object", properties: {}, additionalProperties: false } },
+  { name: "antops_integration_status", description: "Read configured Slack, Teams and GitHub integration status without exposing destinations or secrets.", inputSchema: { type: "object", properties: {}, additionalProperties: false } }
 ] as const;
 
 export async function callTool(client: AntOpsClient, name: string, args: Record<string, unknown>): Promise<unknown> {
@@ -56,6 +61,16 @@ export async function callTool(client: AntOpsClient, name: string, args: Record<
       if (new TextEncoder().encode(content).byteLength > MAX_DOCUMENT_BYTES) throw new Error("Document text exceeds the MCP safety limit.");
       return client.documents.upload(new Blob([content], { type: "text/plain" }), String(args.name));
     }
+    case "antops_change_risk_status":
+      return client.get(`/v1/change-risk/analyses/${String(args.assessment_id)}`);
+    case "antops_document_status":
+      return client.get(`/v1/documents/${String(args.document_id)}`);
+    case "antops_document_findings":
+      return client.get(`/v1/documents/${String(args.document_id)}/findings`);
+    case "antops_workspace_overview":
+      return client.get("/v1/workspace/overview");
+    case "antops_integration_status":
+      return client.get("/v1/integrations");
     default:
       throw new Error("Unknown AntOps MCP tool.");
   }

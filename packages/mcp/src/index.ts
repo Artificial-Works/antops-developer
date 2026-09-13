@@ -14,7 +14,8 @@ const server = new Server({ name: "antops-mcp", version: "0.1.0" }, { capabiliti
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
-    const result = await callTool(client, request.params.name, (request.params.arguments ?? {}) as Record<string, unknown>);
+    const toolClient = client.withRequestHeaders({ "X-AntOps-MCP-Tool": request.params.name });
+    const result = await callTool(toolClient, request.params.name, (request.params.arguments ?? {}) as Record<string, unknown>);
     return { content: [{ type: "text", text: boundedText(result) }] };
   } catch (error) {
     const message = error instanceof Error ? error.message : "AntOps MCP request failed.";
