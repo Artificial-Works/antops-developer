@@ -19,7 +19,7 @@ The corresponding private platform commit `aadba8a` is deployed on B450 at migra
 credentials and webhook secret are not configured in production, so no real provider claim may be
 made and no package release should imply that the integration is generally available.
 
-Developer CI `34768778527` is green. Explicit manual release verification `34768788089` checked
+Developer CI `34768907968` is green. Explicit manual release verification `34768788089` checked
 the existing `v0.1.0` tag against Python, TypeScript and MCP package versions, built all artifacts
 and left the optional GitHub draft-release job skipped. PyPI/npm publication and a GitHub Release
 remain intentionally absent.
@@ -70,5 +70,6 @@ No PyPI/npm package is published. Configure organization-owned PyPI and npm trus
 explicit registry credentials) before enabling release publication. CI/release artifact generation
 is ready; automatic publishing remains deliberately absent.
 
-**NEXT ACTION:** Configure package-registry ownership and trusted publishing, then publish the
-version-tagged Python, TypeScript and MCP packages. Do not add another product family.
+**NEXT ACTION:** Configure the controlled GitHub App, Slack and Teams provider test setup recorded
+in the private platform handoff, then complete real provider verification. Configure PyPI/npm trusted
+publishing separately before any registry release. Do not add another product family.
