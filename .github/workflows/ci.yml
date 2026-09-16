@@ -13,7 +13,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: python -m pip install -e 'packages/python[dev]'
+      - run: python -m pip install --upgrade pip pip-audit -e 'packages/python[dev]'
+      - run: pip-audit
       - run: ruff check packages/python
       - run: pytest -q packages/python/tests
       - uses: actions/setup-node@v6
@@ -21,6 +22,7 @@ jobs:
           node-version: "22"
           cache: npm
       - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
       - run: npm run build
       - run: npm run test:ts
       - run: npm run test:mcp
