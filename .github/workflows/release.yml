@@ -133,9 +133,13 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           REMOTE_VERSION="$(npm view "@antops/sdk@$VERSION" version 2>/dev/null || true)"
           if test "$REMOTE_VERSION" = "$VERSION"; then
-            REMOTE_INTEGRITY="$(npm view "@antops/sdk@$VERSION" dist.integrity)"
-            LOCAL_INTEGRITY="sha512-$(openssl dgst -sha512 -binary "$ARCHIVE" | openssl base64 -A)"
-            test "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY"
+            TMP_DIR="$(mktemp -d)"
+            trap 'rm -rf "$TMP_DIR"' EXIT
+            mkdir "$TMP_DIR/local" "$TMP_DIR/remote" "$TMP_DIR/remote-extract"
+            tar -xzf "$ARCHIVE" -C "$TMP_DIR/local"
+            npm pack "@antops/sdk@$VERSION" --pack-destination "$TMP_DIR/remote" >/dev/null
+            tar -xzf "$TMP_DIR"/remote/*.tgz -C "$TMP_DIR/remote-extract"
+            diff --recursive --brief "$TMP_DIR/local/package" "$TMP_DIR/remote-extract/package"
             exit 0
           fi
           npm publish "$ARCHIVE" --access public
@@ -164,9 +168,13 @@ jobs:
           VERSION="${GITHUB_REF_NAME#v}"
           REMOTE_VERSION="$(npm view "@antops/mcp@$VERSION" version 2>/dev/null || true)"
           if test "$REMOTE_VERSION" = "$VERSION"; then
-            REMOTE_INTEGRITY="$(npm view "@antops/mcp@$VERSION" dist.integrity)"
-            LOCAL_INTEGRITY="sha512-$(openssl dgst -sha512 -binary "$ARCHIVE" | openssl base64 -A)"
-            test "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY"
+            TMP_DIR="$(mktemp -d)"
+            trap 'rm -rf "$TMP_DIR"' EXIT
+            mkdir "$TMP_DIR/local" "$TMP_DIR/remote" "$TMP_DIR/remote-extract"
+            tar -xzf "$ARCHIVE" -C "$TMP_DIR/local"
+            npm pack "@antops/mcp@$VERSION" --pack-destination "$TMP_DIR/remote" >/dev/null
+            tar -xzf "$TMP_DIR"/remote/*.tgz -C "$TMP_DIR/remote-extract"
+            diff --recursive --brief "$TMP_DIR/local/package" "$TMP_DIR/remote-extract/package"
             exit 0
           fi
           npm publish "$ARCHIVE" --access public
