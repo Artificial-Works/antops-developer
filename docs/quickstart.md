@@ -75,15 +75,14 @@ truth. Clients use a bounded timeout and reject oversized or non-JSON responses.
 
 ## Publication status
 
-PyPI and npm packages are not published yet. The only blocker is maintainer-owned PyPI/npm trusted
-publisher setup or explicit package-registry credentials. The release workflow validates all three
-package versions against the tag, builds artifacts, and can create a GitHub **draft** release only
-through explicit manual dispatch. It does not publish automatically. Once maintainers authorize and
-publish `v0.1.0`, registry installation is:
+PyPI and npm packages are not published yet. `v0.2.0` is prepared for tag-only publication through
+protected PyPI and npm trusted publishers using GitHub OIDC; no static registry credentials are kept
+in this repository. Once maintainers finish that one-time configuration and publish `v0.2.0`, registry
+installation is:
 
 ```bash
-python -m pip install antops==0.1.0
-npm install @antops/sdk@0.1.0 @antops/mcp@0.1.0
+python -m pip install antops==0.2.0
+npm install @antops/sdk@0.2.0 @antops/mcp@0.2.0
 ```
 
 The GitHub Action is version-tagged directly from this repository.

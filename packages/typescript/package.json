@@ -1,13 +1,25 @@
 {
   "name": "@antops/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official AntOps TypeScript SDK",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artificial-Works/antops-developer.git"
+  },
+  "homepage": "https://antops.dev",
+  "bugs": {
+    "url": "https://github.com/Artificial-Works/antops-developer/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "exports": { ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" } },
-  "files": ["dist"],
+  "files": ["dist", "README.md", "LICENSE"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "tsx --test test/**/*.test.ts"
+    "test": "tsx --test test/*.test.ts"
   },
   "devDependencies": { "tsx": "^4.19.0", "typescript": "^5.7.0" }
 }

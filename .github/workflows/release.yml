@@ -1,64 +1,163 @@
-name: Release verification
+name: Release
+
 on:
   push:
     tags: ["v*"]
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing version tag to validate and optionally draft as a GitHub Release"
+        description: "Existing vX.Y.Z tag to verify; manual dispatch never publishes"
         required: true
-        default: "v0.1.0"
         type: string
-      create_draft_release:
-        description: "Create a GitHub draft release only; never publishes a registry package"
-        required: true
-        default: false
-        type: boolean
+
 permissions:
   contents: read
+
 jobs:
-  build-artifacts:
+  verify-release:
     runs-on: ubuntu-latest
     steps:
+      - name: Validate requested tag
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          case "$TAG" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *) echo "Expected a vX.Y.Z tag" >&2; exit 1 ;;
+          esac
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          fetch-depth: 0
+      - name: Verify checked-out ref is the existing tag
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$TAG^{commit}")"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install build
-      - run: python -m build packages/python
+      - name: Install Python validation tools
+        run: python -m pip install build twine
+      - name: Test and build Python distribution
+        run: |
+          python -m pip install -e 'packages/python[dev]'
+          ruff check packages/python
+          pytest -q packages/python/tests
+          python -m build packages/python
+          twine check packages/python/dist/*
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
-      - run: npm ci
-      - run: npm run build
-      - name: Verify release version agreement
+      - name: Test and build npm distributions
         run: |
-          TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}"
+          npm ci
+          npm run build
+          npm run test:ts
+          npm run test:mcp
+          npm run test:action
+          mkdir -p release-artifacts/npm
+          npm pack --workspace @antops/sdk --pack-destination release-artifacts/npm
+          npm pack --workspace @antops/mcp --pack-destination release-artifacts/npm
+      - name: Verify release version agreement
+        env:
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
           PYTHON_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("packages/python/pyproject.toml", "rb"))["project"]["version"])')"
           TYPESCRIPT_VERSION="$(node -p 'require("./packages/typescript/package.json").version')"
           MCP_VERSION="$(node -p 'require("./packages/mcp/package.json").version')"
           test "${TAG#v}" = "$PYTHON_VERSION"
           test "${TAG#v}" = "$TYPESCRIPT_VERSION"
           test "${TAG#v}" = "$MCP_VERSION"
+      - name: Verify clean Python wheel install
+        run: |
+          python -m venv /tmp/antops-wheel-install
+          /tmp/antops-wheel-install/bin/python -m pip install packages/python/dist/*.whl
+          /tmp/antops-wheel-install/bin/python -c 'import antops; print(antops.__name__)'
+          /tmp/antops-wheel-install/bin/antops --help >/dev/null
+      - name: Verify clean npm package installation
+        run: |
+          mkdir -p /tmp/antops-npm-install
+          cp release-artifacts/npm/*.tgz /tmp/antops-npm-install/
+          cd /tmp/antops-npm-install
+          npm init --yes
+          npm install ./antops-sdk-*.tgz ./antops-mcp-*.tgz
+          node -e 'import("@antops/sdk").then(({ AntOpsClient }) => { if (!AntOpsClient) process.exit(1) })'
+          printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"release-check","version":"0"}}}\n' | node_modules/.bin/antops-mcp >/dev/null
       - uses: actions/upload-artifact@v4
         with:
           name: antops-release-artifacts
           path: |
             packages/python/dist
-            packages/typescript/dist
-            packages/mcp/dist
-  create-draft-release:
-    needs: build-artifacts
-    if: github.event_name == 'workflow_dispatch' && inputs.create_draft_release
+            release-artifacts/npm
+
+  publish-pypi:
+    needs: verify-release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: antops-release-artifacts
+          path: release-artifacts
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: release-artifacts/packages/python/dist
+
+  publish-npm-sdk:
+    needs: verify-release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@^11.5.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: antops-release-artifacts
+          path: release-artifacts
+      - run: npm publish release-artifacts/release-artifacts/npm/antops-sdk-*.tgz --access public
+
+  publish-npm-mcp:
+    needs: publish-npm-sdk
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22.14.0"
+          registry-url: https://registry.npmjs.org
+      - run: npm install --global npm@^11.5.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: antops-release-artifacts
+          path: release-artifacts
+      - run: npm publish release-artifacts/release-artifacts/npm/antops-mcp-*.tgz --access public
+
+  create-github-release:
+    needs: [publish-pypi, publish-npm-sdk, publish-npm-mcp]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
     permissions:
       contents: write
-    runs-on: ubuntu-latest
     steps:
-      - name: Create a draft GitHub Release
+      - name: Create GitHub Release after successful publication
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ inputs.tag }}
-        run: gh release create "$TAG" --draft --generate-notes --title "$TAG"
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" --generate-notes --title "$TAG"

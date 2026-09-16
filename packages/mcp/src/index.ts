@@ -8,8 +8,8 @@ import { boundedText, callTool, tools } from "./tools.js";
 const apiKey = process.env.ANTOPS_API_KEY;
 if (!apiKey) throw new Error("ANTOPS_API_KEY is required for antops-mcp.");
 
-const client = new AntOpsClient({ apiKey, baseUrl: process.env.ANTOPS_BASE_URL, clientId: "mcp/0.1.0" });
-const server = new Server({ name: "antops-mcp", version: "0.1.0" }, { capabilities: { tools: {} } });
+const client = new AntOpsClient({ apiKey, baseUrl: process.env.ANTOPS_BASE_URL, clientId: "mcp/0.2.0" });
+const server = new Server({ name: "antops-mcp", version: "0.2.0" }, { capabilities: { tools: {} } });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools }));
 server.setRequestHandler(CallToolRequestSchema, async (request) => {

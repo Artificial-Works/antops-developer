@@ -1,11 +1,23 @@
 {
   "name": "@antops/mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Safe AntOps MCP server",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Artificial-Works/antops-developer.git"
+  },
+  "homepage": "https://antops.dev",
+  "bugs": {
+    "url": "https://github.com/Artificial-Works/antops-developer/issues"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "type": "module",
   "bin": { "antops-mcp": "dist/index.js" },
-  "files": ["dist"],
-  "scripts": { "build": "tsc -p tsconfig.json", "test": "tsx --test test/**/*.test.ts" },
-  "dependencies": { "@antops/sdk": "*", "@modelcontextprotocol/sdk": "^1.12.0" },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": { "build": "tsc -p tsconfig.json", "test": "tsx --test test/*.test.ts" },
+  "dependencies": { "@antops/sdk": "^0.2.0", "@modelcontextprotocol/sdk": "^1.12.0" },
   "devDependencies": { "tsx": "^4.19.0", "typescript": "^5.7.0" }
 }

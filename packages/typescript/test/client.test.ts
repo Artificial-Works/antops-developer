@@ -9,7 +9,7 @@ test("tender search sends repeated query values and safe client telemetry", asyn
     fetch: async (input, init) => {
       const url = new URL(String(input));
       assert.deepEqual(url.searchParams.getAll("keywords"), ["cloud", "security"]);
-      assert.equal(new Headers(init?.headers).get("X-AntOps-Client"), "typescript/0.1.0");
+      assert.equal(new Headers(init?.headers).get("X-AntOps-Client"), "typescript/0.2.0");
       return new Response(JSON.stringify({ items: [], page: 1, page_size: 25, total: 0 }));
     }
   });

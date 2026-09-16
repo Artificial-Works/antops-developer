@@ -1,33 +1,27 @@
 # AntOps Developer Handoff
 
-Last updated: 2026-09-13
+Last updated: 2026-09-16
 
-## Wave 7 In Progress: Integrations and Distribution
+## Developer Distribution v0.2.0 Preparation
 
-The local Wave 7 implementation adds bounded workspace integration primitives to the private
-platform: encrypted Slack/Teams destinations, routing by product/severity/customer/search/repository,
-durable alert-linked delivery attempts, and safe test messages. It also adds a signed GitHub App
-PR receiver with bounded diff retrieval, explicit installation/repository mapping, idempotent
-webhook handling and Change Risk Check Run updates. The MCP package has expanded only with bounded
-read/status tools and now emits a fixed allow-listed tool identifier for aggregate telemetry.
+This repository is preparing the `antops` Python CLI/SDK, `@antops/sdk` and `@antops/mcp` packages
+for a coordinated `v0.2.0` release. The release workflow validates a pushed version tag, builds each
+artifact, tests clean installations, and then publishes through protected PyPI/npm trusted publishers
+using GitHub OIDC. Manual dispatch is verification-only and cannot publish packages or create a release.
 
-Local TypeScript/MCP build and tests pass. Publishing stays disabled: no PyPI/npm registry
-credential or trusted publisher is configured. Do not publish artifacts automatically.
+No package or `v0.2.0` tag exists yet. Registry ownership and protected-environment trusted publisher
+configuration remain operator actions; do not use static PyPI or npm tokens.
 
-The corresponding private platform commit `aadba8a` is deployed on B450 at migration
-`20260913_0012`; public health, readiness, Swagger, ReDoc and OpenAPI checks passed. GitHub App
-credentials and webhook secret are not configured in production, so no real provider claim may be
-made and no package release should imply that the integration is generally available.
+Current integration availability is deliberately factual: GitHub Change Risk and Slack have controlled
+production verification; Microsoft Teams is implemented and test-covered but has not had external
+production-provider verification. Public documentation must not present Teams as production verified.
 
-Developer CI `34768907968` is green. Explicit manual release verification `34768788089` checked
-the existing `v0.1.0` tag against Python, TypeScript and MCP package versions, built all artifacts
-and left the optional GitHub draft-release job skipped. PyPI/npm publication and a GitHub Release
-remain intentionally absent.
+The private platform remains the source of truth. The public clients use bounded API calls and have
+production proof for CLI/Python/TypeScript, plus safe MCP read/status operations. They do not embed
+provider credentials, monitor logic or billing authority.
 
-**CURRENT BLOCKER:** Real provider proof requires operator-owned GitHub App, Slack and Teams
-configuration in B450. No provider credential, webhook URL, private key or customer data is stored
-in this repository. Do not publicly advertise these integrations before controlled production
-verification succeeds.
+**NEXT ACTION:** Configure the protected PyPI and npm trusted publishers, verify control of the
+`@antops` npm scope, then create and push the matching `v0.2.0` tag through the normal release gate.
 
 ## Wave 6 Delivery
 
@@ -44,8 +38,9 @@ existing AntOps API and contain no provider, scoring, monitor, policy or documen
   pagination, Change Risk analysis and document upload.
 - Action: sends a maximum of 20 repository-relative static text files, each at most 100 KB, and
   fails only for a platform `blocked` decision.
-- MCP: bounded company lookup/watch, domain check/status, tender search/matches, event history,
-  Change Risk and document scan. It has no key lifecycle, deletion, billing or administration tool.
+- MCP: bounded company lookup, domain check/status, tender search/matches, event history,
+  Change Risk findings and document findings. It has no key lifecycle, deletion, billing or
+  administration tool.
 
 ### Security and telemetry
 
@@ -59,17 +54,16 @@ document content or key.
 
 Isolated temporary Business workspaces were created and deleted after verifying real production
 calls from the CLI, Python SDK, TypeScript SDK, Change Risk Action and MCP server. The MCP stdio
-transport listed the tool surface and completed safe Company Watch and Tender Intelligence reads.
+transport completed its safe read/status proof against production without exposing credentials.
 The Action submitted a controlled static `compose.yaml` and returned `blocked` with its documented
 exit status `1`. Each client produced its expected privacy-safe telemetry identifier:
-`cli/0.1.0`, `python/0.1.0`, `typescript/0.1.0`, `github-action/0.1.0` and `mcp/0.1.0`.
+`cli/0.2.0`, `python/0.2.0`, `typescript/0.2.0`, `github-action/0.1.0` and `mcp/0.2.0`.
 
 ### Publication blocker
 
-No PyPI/npm package is published. Configure organization-owned PyPI and npm trusted publishing (or
-explicit registry credentials) before enabling release publication. CI/release artifact generation
-is ready; automatic publishing remains deliberately absent.
+No PyPI/npm package is published. Configure organization-owned PyPI and npm trusted publishing before
+creating a release tag. The tag-only workflow will publish only after verification succeeds; manual
+workflow dispatch remains artifact verification only.
 
-**NEXT ACTION:** Configure the controlled GitHub App, Slack and Teams provider test setup recorded
-in the private platform handoff, then complete real provider verification. Configure PyPI/npm trusted
-publishing separately before any registry release. Do not add another product family.
+**NEXT ACTION:** Complete the protected PyPI/npm trusted-publisher setup and scope ownership check,
+then create the `v0.2.0` tag. Do not publish before that configuration is complete.

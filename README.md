@@ -39,6 +39,10 @@ or tool arguments as telemetry.
 
 ## Releases
 
-Each publishable package starts at `0.1.0` and follows semantic versioning. CI validates release
-artifacts. Publishing is deliberately disabled until PyPI/npm trusted publishing or maintainer-owned
-credentials are configured.
+The Python CLI/SDK, TypeScript SDK and MCP server are prepared for `v0.2.0`. A release tag validates
+versions, builds distributable artifacts, tests clean installs, then uses protected PyPI and npm
+trusted publishing through GitHub OIDC. No registry package is published until the maintainers finish
+that one-time registry configuration and push the matching release tag.
+
+GitHub Change Risk and Slack delivery have controlled production verification. Microsoft Teams is
+implemented and test-covered, but is not production-verified and is not represented as such here.
