@@ -127,7 +127,18 @@ jobs:
         with:
           name: antops-release-artifacts
           path: release-artifacts
-      - run: npm publish release-artifacts/release-artifacts/npm/antops-sdk-*.tgz --access public
+      - name: Publish SDK or verify the one-time bootstrap artifact
+        run: |
+          ARCHIVE="$(echo release-artifacts/release-artifacts/npm/antops-sdk-*.tgz)"
+          VERSION="${GITHUB_REF_NAME#v}"
+          REMOTE_VERSION="$(npm view "@antops/sdk@$VERSION" version 2>/dev/null || true)"
+          if test "$REMOTE_VERSION" = "$VERSION"; then
+            REMOTE_INTEGRITY="$(npm view "@antops/sdk@$VERSION" dist.integrity)"
+            LOCAL_INTEGRITY="sha512-$(openssl dgst -sha512 -binary "$ARCHIVE" | openssl base64 -A)"
+            test "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY"
+            exit 0
+          fi
+          npm publish "$ARCHIVE" --access public
 
   publish-npm-mcp:
     needs: publish-npm-sdk
@@ -147,7 +158,18 @@ jobs:
         with:
           name: antops-release-artifacts
           path: release-artifacts
-      - run: npm publish release-artifacts/release-artifacts/npm/antops-mcp-*.tgz --access public
+      - name: Publish MCP or verify the one-time bootstrap artifact
+        run: |
+          ARCHIVE="$(echo release-artifacts/release-artifacts/npm/antops-mcp-*.tgz)"
+          VERSION="${GITHUB_REF_NAME#v}"
+          REMOTE_VERSION="$(npm view "@antops/mcp@$VERSION" version 2>/dev/null || true)"
+          if test "$REMOTE_VERSION" = "$VERSION"; then
+            REMOTE_INTEGRITY="$(npm view "@antops/mcp@$VERSION" dist.integrity)"
+            LOCAL_INTEGRITY="sha512-$(openssl dgst -sha512 -binary "$ARCHIVE" | openssl base64 -A)"
+            test "$REMOTE_INTEGRITY" = "$LOCAL_INTEGRITY"
+            exit 0
+          fi
+          npm publish "$ARCHIVE" --access public
 
   create-github-release:
     needs: [publish-pypi, publish-npm-sdk, publish-npm-mcp]

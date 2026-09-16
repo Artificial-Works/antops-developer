@@ -9,8 +9,12 @@ for a coordinated `v0.2.0` release. The release workflow validates a pushed vers
 artifact, tests clean installations, and then publishes through protected PyPI/npm trusted publishers
 using GitHub OIDC. Manual dispatch is verification-only and cannot publish packages or create a release.
 
-No package or `v0.2.0` tag exists yet. Registry ownership and protected-environment trusted publisher
-configuration remain operator actions; do not use static PyPI or npm tokens.
+No package or `v0.2.0` tag exists yet. PyPI has a pending trusted publisher for the first `antops`
+publication. npm trusted publishers can only be configured after package creation, so the first
+`@antops/sdk` and `@antops/mcp` artifacts require a one-time operator-owned interactive npm/2FA
+bootstrap, SDK before MCP. The tag workflow verifies the bootstrapped artifact integrity before
+skipping its duplicate npm publish; every later version uses npm OIDC. Do not use static registry
+tokens.
 
 Current integration availability is deliberately factual: GitHub Change Risk and Slack have controlled
 production verification; Microsoft Teams is implemented and test-covered but has not had external
@@ -20,8 +24,8 @@ The private platform remains the source of truth. The public clients use bounded
 production proof for CLI/Python/TypeScript, plus safe MCP read/status operations. They do not embed
 provider credentials, monitor logic or billing authority.
 
-**NEXT ACTION:** Configure the protected PyPI and npm trusted publishers, verify control of the
-`@antops` npm scope, then create and push the matching `v0.2.0` tag through the normal release gate.
+**NEXT ACTION:** Complete the one-time npm bootstrap, configure npm trusted publishers for both
+packages, then obtain explicit approval before creating and pushing the `v0.2.0` tag.
 
 ## Wave 6 Delivery
 
