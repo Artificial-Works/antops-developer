@@ -25,7 +25,7 @@ jobs:
             v[0-9]*.[0-9]*.[0-9]*) ;;
             *) echo "Expected a vX.Y.Z tag" >&2; exit 1 ;;
           esac
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
           fetch-depth: 0
@@ -34,7 +34,7 @@ jobs:
           TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
           test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$TAG^{commit}")"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install Python validation tools
@@ -46,7 +46,7 @@ jobs:
           pytest -q packages/python/tests
           python -m build packages/python
           twine check packages/python/dist/*
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
@@ -118,7 +118,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22.14.0"
           registry-url: https://registry.npmjs.org
@@ -149,7 +149,7 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: "22.14.0"
           registry-url: https://registry.npmjs.org
