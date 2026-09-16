@@ -42,16 +42,18 @@ Copy [`examples/change-risk.yml`](../examples/change-risk.yml), add `ANTOPS_API_
 Actions secret, and submit only static text files. The Action has `contents: read` permission and
 does not execute submitted content.
 
-Until npm publishing is configured, clone `antops-developer`, run `npm install && npm run build`,
-then configure the MCP command as `node /absolute/path/to/packages/mcp/dist/index.js` with
-`ANTOPS_API_KEY` supplied from its secret manager.
+Install the published MCP package and configure its command with `ANTOPS_API_KEY` supplied from its
+secret manager:
+
+```bash
+npm install -g @antops/mcp@0.2.1
+```
 
 ```json
 {
   "mcpServers": {
     "antops": {
-      "command": "node",
-      "args": ["/absolute/path/to/antops-developer/packages/mcp/dist/index.js"],
+      "command": "antops-mcp",
       "env": { "ANTOPS_API_KEY": "load-from-your-secret-manager" }
     }
   }
@@ -75,10 +77,9 @@ truth. Clients use a bounded timeout and reject oversized or non-JSON responses.
 
 ## Publication status
 
-`@antops/sdk@0.2.0` and `@antops/mcp@0.2.0` are available from npm. PyPI publication remains pending.
-`v0.2.1` is prepared for tag-only publication through protected PyPI and npm trusted publishers using
-GitHub OIDC; no static registry credentials are kept in this repository. Once that release succeeds,
-registry installation is:
+`antops==0.2.1`, `@antops/sdk@0.2.1`, and `@antops/mcp@0.2.1` are published. The release used
+protected PyPI and npm trusted publishers through GitHub OIDC; no static registry credentials are
+kept in this repository. Registry installation is:
 
 ```bash
 python -m pip install antops==0.2.1
