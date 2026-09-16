@@ -1,6 +1,6 @@
 {
   "name": "@antops/mcp",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Safe AntOps MCP server",
   "license": "Apache-2.0",
   "repository": {
@@ -18,6 +18,6 @@
   "bin": { "antops-mcp": "dist/index.js" },
   "files": ["dist", "README.md", "LICENSE"],
   "scripts": { "build": "tsc -p tsconfig.json", "test": "tsx --test test/*.test.ts" },
-  "dependencies": { "@antops/sdk": "^0.2.0", "@modelcontextprotocol/sdk": "^1.12.0" },
+  "dependencies": { "@antops/sdk": "^0.2.1", "@modelcontextprotocol/sdk": "^1.12.0" },
   "devDependencies": { "tsx": "^4.19.0", "typescript": "^5.7.0" }
 }

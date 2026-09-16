@@ -29,7 +29,7 @@ def _client() -> AntOpsClient:
     api_key = os.environ.get("ANTOPS_API_KEY") or _config_key()
     if not api_key:
         raise AntOpsError("Set ANTOPS_API_KEY or run 'antops auth login --stdin'.")
-    return AntOpsClient(api_key, base_url=os.environ.get("ANTOPS_BASE_URL", DEFAULT_BASE_URL), client_id="cli/0.2.0")
+    return AntOpsClient(api_key, base_url=os.environ.get("ANTOPS_BASE_URL", DEFAULT_BASE_URL), client_id="cli/0.2.1")
 
 
 def _print(value: Any, as_json: bool) -> None:

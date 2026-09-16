@@ -2,19 +2,18 @@
 
 Last updated: 2026-09-16
 
-## Developer Distribution v0.2.0 Preparation
+## Developer Distribution v0.2.1 Recovery Preparation
 
 This repository is preparing the `antops` Python CLI/SDK, `@antops/sdk` and `@antops/mcp` packages
-for a coordinated `v0.2.0` release. The release workflow validates a pushed version tag, builds each
+for a coordinated `v0.2.1` release. The release workflow validates a pushed version tag, builds each
 artifact, tests clean installations, and then publishes through protected PyPI/npm trusted publishers
 using GitHub OIDC. Manual dispatch is verification-only and cannot publish packages or create a release.
 
-No package or `v0.2.0` tag exists yet. PyPI has a pending trusted publisher for the first `antops`
-publication. npm trusted publishers can only be configured after package creation, so the first
-`@antops/sdk` and `@antops/mcp` artifacts require a one-time operator-owned interactive npm/2FA
-bootstrap, SDK before MCP. The tag workflow verifies the bootstrapped artifact integrity before
-skipping its duplicate npm publish; every later version uses npm OIDC. Do not use static registry
-tokens.
+The immutable `v0.2.0` tag exists. Its release workflow failed in clean npm smoke before any PyPI
+publication because MCP was launched without the required environment-only API key. The one-time npm
+bootstrap successfully published `@antops/sdk@0.2.0` and `@antops/mcp@0.2.0`; their trusted publishers
+are configured. `v0.2.1` supplies a dummy smoke-only key and publishes all three packages through OIDC.
+Do not use static registry tokens.
 
 Current integration availability is deliberately factual: GitHub Change Risk and Slack have controlled
 production verification; Microsoft Teams is implemented and test-covered but has not had external
@@ -24,8 +23,8 @@ The private platform remains the source of truth. The public clients use bounded
 production proof for CLI/Python/TypeScript, plus safe MCP read/status operations. They do not embed
 provider credentials, monitor logic or billing authority.
 
-**NEXT ACTION:** Complete the one-time npm bootstrap, configure npm trusted publishers for both
-packages, then obtain explicit approval before creating and pushing the `v0.2.0` tag.
+**NEXT ACTION:** Obtain explicit approval before creating and pushing the `v0.2.1` tag. Do not move,
+delete or rewrite `v0.2.0`.
 
 ## Wave 6 Delivery
 
@@ -61,13 +60,12 @@ calls from the CLI, Python SDK, TypeScript SDK, Change Risk Action and MCP serve
 transport completed its safe read/status proof against production without exposing credentials.
 The Action submitted a controlled static `compose.yaml` and returned `blocked` with its documented
 exit status `1`. Each client produced its expected privacy-safe telemetry identifier:
-`cli/0.2.0`, `python/0.2.0`, `typescript/0.2.0`, `github-action/0.1.0` and `mcp/0.2.0`.
+`cli/0.2.1`, `python/0.2.1`, `typescript/0.2.1`, `github-action/0.1.0` and `mcp/0.2.1`.
 
 ### Publication blocker
 
-No PyPI/npm package is published. Configure organization-owned PyPI and npm trusted publishing before
-creating a release tag. The tag-only workflow will publish only after verification succeeds; manual
-workflow dispatch remains artifact verification only.
+The npm bootstrap packages are published at `0.2.0`; PyPI remains unpublished. The tag-only workflow
+will publish `0.2.1` only after verification succeeds; manual workflow dispatch remains artifact
+verification only.
 
-**NEXT ACTION:** Complete the protected PyPI/npm trusted-publisher setup and scope ownership check,
-then create the `v0.2.0` tag. Do not publish before that configuration is complete.
+**NEXT ACTION:** Create `v0.2.1` only with explicit approval. Do not modify `v0.2.0`.

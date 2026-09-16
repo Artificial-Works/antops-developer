@@ -39,10 +39,10 @@ or tool arguments as telemetry.
 
 ## Releases
 
-The Python CLI/SDK, TypeScript SDK and MCP server are prepared for `v0.2.0`. A release tag validates
+The Python CLI/SDK, TypeScript SDK and MCP server are prepared for `v0.2.1`. A release tag validates
 versions, builds distributable artifacts, tests clean installs, then uses protected PyPI and npm
-trusted publishing through GitHub OIDC. No registry package is published until the maintainers finish
-that one-time registry configuration and push the matching release tag.
+trusted publishing through GitHub OIDC. The one-time npm bootstrap released `@antops/sdk@0.2.0` and
+`@antops/mcp@0.2.0`; PyPI publication remains pending the `v0.2.1` release tag.
 
 GitHub Change Risk and Slack delivery have controlled production verification. Microsoft Teams is
 implemented and test-covered, but is not production-verified and is not represented as such here.

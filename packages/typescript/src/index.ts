@@ -74,7 +74,7 @@ export class AntOpsClient {
     this.apiKey = options.apiKey;
     this.baseUrl = (options.baseUrl ?? DEFAULT_BASE_URL).replace(/\/$/, "");
     this.timeoutMs = options.timeoutMs ?? 15_000;
-    this.clientId = options.clientId ?? "typescript/0.2.0";
+    this.clientId = options.clientId ?? "typescript/0.2.1";
     this.requestFetch = options.fetch ?? globalThis.fetch;
     this.requestHeaders = options.requestHeaders ?? {};
   }

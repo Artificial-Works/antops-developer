@@ -89,7 +89,7 @@ class _DocumentClient:
 
 
 class AntOpsClient:
-    def __init__(self, api_key: str, *, base_url: str = DEFAULT_BASE_URL, timeout: float = 15.0, client_id: str = "python/0.2.0", transport: httpx.BaseTransport | None = None) -> None:
+    def __init__(self, api_key: str, *, base_url: str = DEFAULT_BASE_URL, timeout: float = 15.0, client_id: str = "python/0.2.1", transport: httpx.BaseTransport | None = None) -> None:
         if not api_key.strip():
             raise ValueError("An AntOps API key is required.")
         self._api_key = api_key

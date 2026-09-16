@@ -7,7 +7,7 @@ from antops import AntOpsClient, AuthenticationError, RateLimitError
 def responder(request: httpx.Request) -> httpx.Response:
     if request.url.path == "/v1/tenders":
         assert request.url.params.get_list("keywords") == ["cloud", "security"]
-        assert request.headers["x-antops-client"] == "python/0.2.0"
+        assert request.headers["x-antops-client"] == "python/0.2.1"
         return httpx.Response(200, json={"items": [], "page": 1, "page_size": 25, "total": 0})
     if request.url.path == "/v1/workspace":
         return httpx.Response(401, json={"detail": "Missing API key"})
