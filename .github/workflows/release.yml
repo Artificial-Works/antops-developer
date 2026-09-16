@@ -85,7 +85,7 @@ jobs:
           npm install ./antops-sdk-*.tgz ./antops-mcp-*.tgz
           node -e 'import("@antops/sdk").then(({ AntOpsClient }) => { if (!AntOpsClient) process.exit(1) })'
           printf '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"release-check","version":"0"}}}\n{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}\n' | ANTOPS_API_KEY=release-check-placeholder node_modules/.bin/antops-mcp >/dev/null
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: antops-release-artifacts
           path: |
