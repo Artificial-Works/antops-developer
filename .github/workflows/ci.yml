@@ -17,7 +17,7 @@ jobs:
       - run: pip-audit
       - run: ruff check packages/python
       - run: pytest -q packages/python/tests
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
