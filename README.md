@@ -4,6 +4,9 @@ Official CLI, Python SDK, TypeScript SDK, GitHub Action and MCP server for the A
 API. These tools are thin clients: AntOps remains the source of truth for all product logic,
 scoring, monitoring and policy decisions.
 
+Need a workspace first? Start on the [Free AntOps Workspace plan](https://antops.dev).
+RapidAPI subscriptions are for request-based checker APIs and do not include Workspace monitoring.
+
 ## Quick start
 
 ```bash
